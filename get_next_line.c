@@ -6,7 +6,7 @@
 /*   By: rschlott <rschlott@student.42wolfsburg.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 20:16:53 by rschlott          #+#    #+#             */
-/*   Updated: 2022/05/26 13:53:26 by rschlott         ###   ########.fr       */
+/*   Updated: 2022/05/27 12:51:19 by rschlott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ size_t	ft_strlen(const char *s)
 	return (count);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+static char	*ft_strjoin(char const *s1, char const *s2)
 {
 	char	*dest;
 	size_t	i;
@@ -71,11 +71,11 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	j = 0;
 	if (dest == NULL)
 		return (NULL);
-	/*while (*(s1 + i) != 0)
+	while (*(s1 + i) != 0)
 	{
 		*(dest + i) = *(s1 + i);
 		i++;
-	}*/
+	}
 	while (*(s2 + j) != 0)
 	{
 		*(dest + i + j) = *(s2 + j);
@@ -85,27 +85,129 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (dest);
 }
 
+/* Locates character in string. Returns a pointer to the first occurrence of 
+	the matched character c in string s or NULL if the character is not found. 
+	The terminating null byte is considered part of the string. */
+char	*ft_strchr(const char *s, int c)
+{
+	while (*s != '\0')
+	{
+		if (*s == (char)c)
+			return ((char *)s);
+		s++;
+	}
+	if (*s == (char)c)
+		return ((char *)s);
+	return (NULL);
+}
+
+/*char	*ft_strrchr(const char *s, int c)
+{
+	int	count;
+
+	count = ft_strlen(s);
+	while (count >= 0)
+	{
+		if (*(s + count) == (char)c)
+		{
+			return ((char *)(s + count));
+		}
+		count--;
+	}
+	return (NULL);
+}*/
+
+static char    *string_to_n(char *return_str, char *buf)
+{
+    int		i;
+	char	*str;
+	int		j;
+
+	i = 0;
+	str = ft_calloc(ft_strlen(return_str) + 1, sizeof(char));
+	if (return_str[0] == '\n')
+		return (newline_after_n(return_str, buf, str));
+    while (return_str[i] != '\n')
+	{
+		str[i] = return_str[i];
+		i++;
+	}
+	str[i] = '\n';
+	i++;
+	j = 0;
+	while (return_str[j + i])
+	{
+		buf[j] = return_str[j + i];
+		j++;
+	}
+	buf[j] = '\0';
+	free (return_str);
+	return (str);
+}
+
+static char    *newline_after_n(char *return_str, char *buf, char *str)
+{
+    int	i;
+
+	i = 0;
+	while (return_str[i + 1])
+	{
+		buf[i] = return_str[i + 1];
+		i++;
+	}
+	while (buf[i])
+	{
+		buf[i] = '\0';
+		i++;
+	}
+	str[0] = '\n';
+	str[1] = '\0';
+	free (return_str);
+	return (str);
+}
+
+static char	*done_reading(char *return_str, int bytes)
+{
+	if (bytes < 0)
+	{
+		free (return_str);
+		return (NULL);
+	}
+	if (bytes == 0)
+	{	
+		if (return_str[0])
+			return (return_str);
+		free (return_str);
+		return (NULL);
+	}
+	return (NULL);
+}
+
 char    *get_next_line(int fd)
 {
     char    *return_str;
     char    *buf;
-    char    buffer[BUFFER_SIZE + 1];    // variable size vom buffer + 1 für Nullbyte
+    static char    buffer[BUFFER_SIZE + 1];    // variable size vom buffer + 1 für Nullbyte
     int     bytes;
 
     buf = &buffer[0];
     return_str = ft_calloc(1, sizeof(char));
-    /*if (fd == -1)
-        exit(1);*/
-    /* Loop von einem Index zum nächsten für eine Line aus File bis \n und dann printen mit strjoin??? */
     bytes = 1;
-    while (bytes != 0)   // if bytes = zero -> end of file; bytes don't exsist anymore
+    while (bytes)   // if bytes = zero -> end of file; bytes don't exsist anymore
     {
-        bytes = read(fd, buf, BUFFER_SIZE); // jedes byte für eine Zeile wird durchgegangen.
+        /*if (buf[0] != '\0')
+		{
+			return_str = ft_strjoin(return_str, buf);
+			if (ft_strchr(return_str, '\n'))
+				return (string_to_n(return_str, buf));
+		}*/
+        bytes = read(fd, buf, BUFFER_SIZE);  // jedes byte inkl. \n wird gezählt bis \0 (das dann nicht mehr); bytes = -1 error (z.B. kein File gefunden); bytes = 0 (End of File is reached)
         return_str = ft_strjoin(return_str, buf);  // Ein Buchstabe aus buf und ein Platz aus calloc kommt in return_str
-        //printf("\nTest:%s\n", return_str);
+        if (bytes > 0 && ft_strchr(return_str, '\n'))
+            return(string_to_n(return_str, buf));
+        if (bytes < 0)
+            return (done_reading(return_str, bytes));
     }
-
-    buf[BUFFER_SIZE + 1] = '\0';
     return (return_str); // the line that was read
 }
 
