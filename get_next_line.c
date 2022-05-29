@@ -6,7 +6,7 @@
 /*   By: rschlott <rschlott@student.42wolfsburg.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 20:16:53 by rschlott          #+#    #+#             */
-/*   Updated: 2022/05/27 14:53:43 by rschlott         ###   ########.fr       */
+/*   Updated: 2022/05/29 14:18:41 by rschlott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,51 +18,50 @@
     number. If the file offset is at or past the end of file, no bytes are read, 
     and read() returns zero.*/
 
-/* we have a string so nmemb = 1 and size = size of char */
-
-static char	*string_to_n(char *return_str, char *buff);
-static char	*newline_after_n(char *return_str, char *buff, char *str);
+static char	*when_n_exists(char *return_str, char *buff);
+static char	*when_starts_with_new_line(char *return_str, char *buff, char *str);
 static char	*done_reading(char *return_str, int read_out);
-static char	*ft_strjoin_gnl(char *s1, char *s2);
+static char	*ft_strjoin(char *s1, char *s2);
 
-static char	*ft_strjoin_gnl(char *s1, char *s2)
+char	*get_next_line(int fd)
 {
-	char	*dest;
-	size_t	i;
-	size_t	j;
+	static char	buff[BUFFER_SIZE + 1];
+	int			read_out;
+	char		*return_str;
 
-	if (!s1 || !s2)
+	if (fd < 0 || fd > 4096 || BUFFER_SIZE <= 0)
 		return (NULL);
-	dest = malloc(1 * (ft_strlen(s1) + ft_strlen(s2) + 1));
-	i = 0;
-	j = 0;
-	if (dest == NULL)
-		return (NULL);
-	while (*(s1 + i) != 0)
+	return_str = ft_calloc(1, sizeof(char));
+	read_out = 1;
+	while (read_out)
 	{
-		*(dest + i) = *(s1 + i);
-		i++;
+		if (buff[0] != '\0')
+		{
+			return_str = ft_strjoin(return_str, buff);
+			if (ft_strrchr(return_str, '\n'))
+				return (when_n_exists(return_str, buff));
+		}
+		read_out = read(fd, buff, BUFFER_SIZE);
+		return_str = ft_strjoin(return_str, buff);
+		if (read_out > 0 && ft_strrchr(return_str, '\n'))
+			return (when_n_exists(return_str, buff));
+		if (read_out <= 0)
+			return (done_reading(return_str, read_out));
 	}
-	while (*(s2 + j) != 0)
-	{
-		*(dest + i + j) = *(s2 + j);
-		j++;
-	}
-	*(dest + i + j) = '\0';
-	return (dest);
+	return (return_str);
 }
 
-static char    *string_to_n(char *return_str, char *buf)
+static char	*when_n_exists(char *return_str, char *buff)
 {
-    int		i;
+	int		i;
 	char	*str;
 	int		j;
 
 	i = 0;
 	str = ft_calloc(ft_strlen(return_str) + 1, sizeof(char));
 	if (return_str[0] == '\n')
-		return (newline_after_n(return_str, buf, str));
-    while (return_str[i] != '\n')
+		return (when_starts_with_new_line(return_str, buff, str));
+	while (return_str[i] != '\n')
 	{
 		str[i] = return_str[i];
 		i++;
@@ -72,27 +71,27 @@ static char    *string_to_n(char *return_str, char *buf)
 	j = 0;
 	while (return_str[j + i])
 	{
-		buf[j] = return_str[j + i];
+		buff[j] = return_str[j + i];
 		j++;
 	}
-	buf[j] = '\0';
+	buff[j] = '\0';
 	free (return_str);
 	return (str);
 }
 
-static char    *newline_after_n(char *return_str, char *buf, char *str)
+static char	*when_starts_with_new_line(char *return_str, char *buff, char *str)
 {
-    int	i;
+	int	i;
 
 	i = 0;
 	while (return_str[i + 1])
 	{
-		buf[i] = return_str[i + 1];
+		buff[i] = return_str[i + 1];
 		i++;
 	}
-	while (buf[i])
+	while (buff[i])
 	{
-		buf[i] = '\0';
+		buff[i] = '\0';
 		i++;
 	}
 	str[0] = '\n';
@@ -101,14 +100,14 @@ static char    *newline_after_n(char *return_str, char *buf, char *str)
 	return (str);
 }
 
-static char	*done_reading(char *return_str, int bytes)
+static char	*done_reading(char *return_str, int read_out)
 {
-	if (bytes < 0)
+	if (read_out < 0)
 	{
 		free (return_str);
 		return (NULL);
 	}
-	if (bytes == 0)
+	if (read_out == 0)
 	{	
 		if (return_str[0])
 			return (return_str);
@@ -118,35 +117,27 @@ static char	*done_reading(char *return_str, int bytes)
 	return (NULL);
 }
 
-char    *get_next_line(int fd)
+static char	*ft_strjoin(char *s1, char *s2)
 {
-    char    *return_str;
-    char    *buf;
-    static char    buffer[BUFFER_SIZE + 1];    // variable size vom buffer + 1 für Nullbyte
-    int     bytes;
+	int		len;
+	int		i;
+	char	*dst;
+	int		len1;
 
-    if (fd < 0 || fd >= 4096)
-        return (NULL);
-    buf = &buffer[0];
-    return_str = ft_calloc(1, sizeof(char));
-    bytes = 1;
-    while (bytes)   // if bytes = zero -> end of file; bytes don't exsist anymore
-    {
-        if (buf[0] != '\0')
-		{
-			return_str = ft_strjoin_gnl(return_str, buf);
-			if (ft_strchr(return_str, '\n'))
-				return (string_to_n(return_str, buf));
-		}
-        bytes = read(fd, buf, BUFFER_SIZE);  // jedes byte inkl. \n wird gezählt bis \0 (das dann nicht mehr); bytes = -1 error (z.B. kein File gefunden); bytes = 0 (End of File is reached)
-        printf("bytes: %d", bytes);
-        return_str = ft_strjoin_gnl(return_str, buf);  // Ein Buchstabe aus buf und ein Platz aus calloc kommt in return_str
-        if (bytes > 0 && ft_strchr(return_str, '\n'))
-            return(string_to_n(return_str, buf));
-        if (bytes <= 0)
-            return (done_reading(return_str, bytes));
-    }
-    return (return_str); // the line that was read
+	i = 0;
+	len1 = ft_strlen(s1);
+	len = len1 + ft_strlen(s2)+ 1;
+	dst = ft_calloc(len, sizeof(char));
+	while (i < (len1 + 1))
+	{
+		dst[i] = s1[i];
+		i++;
+	}
+	ft_strlcat(dst, s2, len);
+	ft_bzero(s2, ft_strlen(s2));
+	if (s1)
+		free (s1);
+	return (dst);
 }
 
 /*int main()
