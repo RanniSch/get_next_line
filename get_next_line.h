@@ -6,7 +6,7 @@
 /*   By: rschlott <rschlott@student.42wolfsburg.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/27 14:28:45 by rschlott          #+#    #+#             */
-/*   Updated: 2022/05/29 14:18:37 by rschlott         ###   ########.fr       */
+/*   Updated: 2022/05/29 21:15:33 by rschlott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,11 @@
 #  define BUFFER_SIZE 1
 # endif
 
-char	*get_next_line(int fd);
-void	ft_bzero(void *s, size_t n);
-size_t	ft_strlcat(char *dest, const char *src, size_t size);
-void	*ft_calloc(size_t num, size_t size);
 size_t	ft_strlen(const char *c);
-char	*ft_strrchr(char *str, int ch);
+void	ft_bzero(void *s, size_t n);
+void	*ft_calloc(size_t nmemb, size_t size);
+char	*ft_strchr(char *s, int c);
+size_t	ft_strlcat_gnl(char *dest, const char *s2, size_t len);
+char	*get_next_line(int fd);
 
 #endif
