@@ -6,7 +6,7 @@
 /*   By: rschlott <rschlott@student.42wolfsburg.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 20:16:53 by rschlott          #+#    #+#             */
-/*   Updated: 2022/05/29 21:36:20 by rschlott         ###   ########.fr       */
+/*   Updated: 2022/05/30 14:10:29 by rschlott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,29 @@ char	*get_next_line(int fd)
 			return (finished_reading(return_str, bytes));
 	}
 	return (return_str);
+}
+
+static char	*ft_strjoin(char *s1, char *s2)
+{
+	int		len;
+	int		i;
+	char	*dst;
+	int		len1;
+
+	i = 0;
+	len1 = ft_strlen(s1);
+	len = len1 + ft_strlen(s2)+ 1;
+	dst = ft_calloc(len, sizeof(char));
+	while (i < (len1 + 1))
+	{
+		dst[i] = s1[i];
+		i++;
+	}
+	ft_strlcat_gnl(dst, s2, len);
+	ft_bzero(s2, ft_strlen(s2));
+	if (s1)
+		free (s1);
+	return (dst);
 }
 
 static char	*line_to_n(char *return_str, char *buf)
@@ -116,27 +139,4 @@ static char	*finished_reading(char *return_str, int bytes)
 		return (NULL);
 	}
 	return (NULL);
-}
-
-static char	*ft_strjoin(char *s1, char *s2)
-{
-	int		len;
-	int		i;
-	char	*dst;
-	int		len1;
-
-	i = 0;
-	len1 = ft_strlen(s1);
-	len = len1 + ft_strlen(s2)+ 1;
-	dst = ft_calloc(len, sizeof(char));
-	while (i < (len1 + 1))
-	{
-		dst[i] = s1[i];
-		i++;
-	}
-	ft_strlcat_gnl(dst, s2, len);
-	ft_bzero(s2, ft_strlen(s2));
-	if (s1)
-		free (s1);
-	return (dst);
 }

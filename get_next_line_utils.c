@@ -6,7 +6,7 @@
 /*   By: rschlott <rschlott@student.42wolfsburg.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/27 14:24:33 by rschlott          #+#    #+#             */
-/*   Updated: 2022/05/29 21:14:18 by rschlott         ###   ########.fr       */
+/*   Updated: 2022/05/29 23:03:17 by rschlott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,26 +67,26 @@ char	*ft_strchr(char *s, int c)
 	return (NULL);
 }
 
-size_t	ft_strlcat_gnl(char *dest, const char *s2, size_t len)
+size_t	ft_strlcat_gnl(char *dst, const char *s2, size_t len)
 {
 	size_t	len2;
-	size_t	dest_len;
+	size_t	dst_len;
 	size_t	i;
 
 	len2 = ft_strlen(s2);
 	if (len == 0)
 		return (len2);
-	dest_len = 0;
-	while (dest_len < len && dest[dest_len])
-		dest_len++;
-	if (len <= dest_len)
+	dst_len = 0;
+	while (dst_len < len && dst[dst_len])
+		dst_len++;
+	if (len <= dst_len)
 		return (len + len2);
 	i = 0;
-	while (len && (--len - dest_len > 0) && s2[i])
+	while (len && (--len - dst_len > 0) && s2[i])
 	{
-		dest[dest_len + i] = s2[i];
+		dst[dst_len + i] = s2[i];
 		i++;
 	}
-	dest[dest_len + i] = '\0';
-	return (len2 + dest_len);
+	dst[dst_len + i] = '\0';
+	return (len2 + dst_len);
 }
