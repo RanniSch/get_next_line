@@ -6,3 +6,6 @@ The code needs to be compiled as follows (a buffer size of 42 is used as an exam
 ```
 cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 <files>.c
 ```
+There is an example text file "test.txt" which is called by main.c <br> <br>
+
+![get_next_line-1](https://github.com/RanniSch/get_next_line/assets/104382315/13f45616-6d3e-4523-8ac7-4a3adb14da5c)
