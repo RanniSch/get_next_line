@@ -4,7 +4,7 @@ The function always returns the line that was read. If there is nothing else to 
 
 ## How to run the code
 * The code needs to be compiled as follows (a buffer size of 42 is used as an example): ```cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 <files>.c```
-* Then run the code with: ```./a.out```<br><br>
+* Then run the code with: ```./a.out```<br>
 
 There is an example text file "test.txt" which is called by main.c <br>
 
